@@ -23,10 +23,10 @@ const convertName = (name: string): string => {
     }
   };
   
-  const convertDateFormat = (date: string): string => {
-    const convertedDate = moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD');
-    return convertedDate;
-  };
+//   const convertDateFormat = (date: string): string => {
+//     const convertedDate = moment(date, 'MM/DD/YYYY').format('YYYY-MM-DD');
+//     return convertedDate;
+//   };
 
   const addSevenDate = (date: string): string => {
     const endDate = moment(date, 'MM/DD/YYYY').add(7, 'days').format('MM/DD/YYYY');
@@ -39,7 +39,7 @@ const convertName = (name: string): string => {
   };
 
   
-const format = (data: OpenAirInput[], rateData: any, inputFormat: number, outputFormat: number, invoiceNo): any[] => {
+const format = (data: OpenAirInput[], rateData: any, inputFormat: number, outputFormat: number, invoiceNo: string): any[] => {
     let formattedData: QBInvoiceOutput[] | QBTimeOutput[] = [];
     let tempArray: OpenAirInput[] = [];
     if (!data) {
@@ -129,8 +129,9 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
             );
 
             if(approved === "Approved") {
-                const { billingRate, approver, approverEmail } =  RateService.findRateInfo(rateData, name, projectName);
+                const { billingRate/*, approver, approverEmail */ } =  RateService.findRateInfo(rateData, name, projectName);
                 if(rowId === -1) {
+                    
                     row["Resource Name"] = name;
                     row["Rate"] = billingRate;
                     tempArray.push(row);
@@ -146,18 +147,30 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
             
          });
         if(outputFormat === constants.QBINVOICEOUT) {
-            
+            let resourceNameDate = tempArray[0]["Resource Name"]+tempArray[0]["Week Begin Date"];
             tempArray.forEach((row: OpenAirInput) => {
+                let outputRow: QBInvoiceOutput = {...{}, ...QBInvoice}; 
+                console.log("resourceNameDate: ", resourceNameDate);
+                console.log('vs ', row["Resource Name"]+row["Week Begin Date"]);
+                if(resourceNameDate !== row["Resource Name"]+row["Week Begin Date"]) {
+                    let tempNo = parseInt(invoiceNo, 10);
+                    tempNo++;
+                    invoiceNo = `${tempNo}`;
+                    resourceNameDate = row["Resource Name"]+row["Week Begin Date"];
+                    console.log('meow?', invoiceNo);
+                }
+               
                 const weekEndDate = addSevenDate(row["Week Begin Date"]);
                 const today = moment().format("MM/DD/YYYY");
                 let description = `UKG Consulting Services by: ${row["Resource Name"]}\n\r${row["Week Begin Date"]} - ${weekEndDate}`;
                 
-                                    let outputRow: QBInvoiceOutput = {...{}, ...QBInvoice}; 
+                
                 const rate = row["Rate"];
                 let serviceAmount = 0;
                 if(rate && rate > 0) {
                     serviceAmount = parseFloat(row.Hours) * rate;
                 }
+                outputRow.InvoiceNo = invoiceNo;
                 outputRow.InvoiceDate = today;
                 outputRow.ServiceQuantity = row.Hours;
                 outputRow.ServiceRate = `${rate}`;

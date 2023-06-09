@@ -1,13 +1,10 @@
-import { useState } from 'react'
 import FileUpload from "./components/FileUpload";
 
 
 import './App.css'
 
 
-function App() {
-  const [file, setFile] = useState();
-  
+function App() { 
   
   return (
     <>

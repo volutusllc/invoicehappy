@@ -61,7 +61,7 @@ function FileUpload () {
         let rateData = {};
         
         //process resource/project rates file
-        RateService.getRates(currentPayFile, (event: any) => {
+        RateService.getRates(currentPayFile, () => {
             console.log('rate file uploaded');
         })
         .then((data) => {            
@@ -81,14 +81,14 @@ function FileUpload () {
           .then((file: string) => {
             const fileName = `${removeFileExtension(currentTimeFile.name)}-converted-${moment().format("MM/DD/YYYY")}.csv`;
             const fileBlob = new Blob([file], { type: 'text/csv;charset=utf-8;' });
-            if (navigator.msSaveBlob) { // In case of IE 10+
-                navigator.msSaveBlob(fileBlob, fileName);
-            } else {
+            // if (navigator.msSaveBlob) { // In case of IE 10+
+            //     navigator.msSaveBlob(fileBlob, fileName);
+            // } else {
             files.push({url: fileBlob, name: fileName});
             setFileInfos(files);
             
             return fileBlob;
-            }
+            // }
           })
           .catch((err) => {
             setProgress(0);

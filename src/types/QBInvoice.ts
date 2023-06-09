@@ -1,7 +1,7 @@
 type QBInvoiceOutput = {
     Response?: string;
     QbId?: string;
-    InvoiceNo?: string;
+    InvoiceNo: string;
     Customer?: string;
     InvoiceDate?: string;
     DueDate?: string;
