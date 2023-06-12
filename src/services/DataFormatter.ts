@@ -28,8 +28,8 @@ const convertName = (name: string): string => {
 //     return convertedDate;
 //   };
 
-  const addSevenDate = (date: string): string => {
-    const endDate = moment(date, 'MM/DD/YYYY').add(7, 'days').format('MM/DD/YYYY');
+  const addSixDate = (date: string): string => {
+    const endDate = moment(date, 'MM/DD/YYYY').add(6, 'days').format('MM/DD/YYYY');
     return `${endDate}`;
   };
 
@@ -147,6 +147,7 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
             
          });
         if(outputFormat === constants.QBINVOICEOUT) {
+            console.log('temp array: ', tempArray);
             let resourceNameDate = tempArray[0]["Resource Name"]+tempArray[0]["Week Begin Date"];
             tempArray.forEach((row: OpenAirInput) => {
                 let outputRow: QBInvoiceOutput = {...{}, ...QBInvoice}; 
@@ -160,9 +161,9 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
                     console.log('meow?', invoiceNo);
                 }
                
-                const weekEndDate = addSevenDate(row["Week Begin Date"]);
+                const weekEndDate = addSixDate(row["Week Begin Date"]);
                 const today = moment().format("MM/DD/YYYY");
-                let description = `UKG Consulting Services by: ${row["Resource Name"]}\n\r${row["Week Begin Date"]} - ${weekEndDate}`;
+                let description = `UKG Consulting Services by: ${row["Resource Name"]}\r${row["Week Begin Date"]} - ${weekEndDate}`;
                 
                 
                 const rate = row["Rate"];
