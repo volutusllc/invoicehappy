@@ -29,7 +29,7 @@ const convertName = (name: string): string => {
 //   };
 
   const addSixDate = (date: string): string => {
-    const endDate = moment(date, 'MM/DD/YYYY').add(6, 'days').format('MM/DD/YYYY');
+    const endDate = moment(date).add(6, 'days').format('MM/DD/YYYY');
     return `${endDate}`;
   };
 
@@ -115,13 +115,28 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
     };
 
     if(inputFormat === constants.OPENAIRINPUT) {
+        data.sort((a: OpenAirInput, b: OpenAirInput) => {
+            const nameA = a["Resource Name"].toUpperCase();
+            const nameB = b["Resource Name"].toUpperCase();
+            if (nameA < nameB) {
+              return -1;
+            }
+            if (nameA > nameB) {
+              return 1;
+            }
+          
+            // names must be equal
+            return 0;
+        });
         data.forEach((row: OpenAirInput) => {
             let projectName = row["Project Name"];
             let beginDate = row["Week Begin Date"];
             let hours = parseFloat(row["Hours"]);
             let approved = row["Approval Status"];
             let name = convertName(row["Resource Name"]);
-             
+            if(!projectName || !beginDate || !hours || !approved || !name){
+                throw new Error("Required data is missing, please check input file");
+            } 
             const rowId = tempArray.findIndex(
              (proj: OpenAirInput) => proj["Project Name"] === projectName && 
                                     proj["Resource Name"] === name && 
@@ -147,23 +162,21 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
             
          });
         if(outputFormat === constants.QBINVOICEOUT) {
-            console.log('temp array: ', tempArray);
-            let resourceNameDate = tempArray[0]["Resource Name"]+tempArray[0]["Week Begin Date"];
+            let resourceName = tempArray[0]["Resource Name"];
             tempArray.forEach((row: OpenAirInput) => {
-                let outputRow: QBInvoiceOutput = {...{}, ...QBInvoice}; 
-                console.log("resourceNameDate: ", resourceNameDate);
-                console.log('vs ', row["Resource Name"]+row["Week Begin Date"]);
-                if(resourceNameDate !== row["Resource Name"]+row["Week Begin Date"]) {
+                let outputRow: QBInvoiceOutput = {...{}, ...QBInvoice};
+                if(resourceName !== row["Resource Name"]) {
+                    resourceName = row["Resource Name"];
+                    console.log('new invoice #', resourceName);
                     let tempNo = parseInt(invoiceNo, 10);
                     tempNo++;
                     invoiceNo = `${tempNo}`;
-                    resourceNameDate = row["Resource Name"]+row["Week Begin Date"];
-                    console.log('meow?', invoiceNo);
                 }
-               
-                const weekEndDate = addSixDate(row["Week Begin Date"]);
+                console.log('row["Week Begin Date"]', row["Week Begin Date"]);
+                const weekBeginDate = moment(row["Week Begin Date"]).format("MM/DD/YYYY");
+                const weekEndDate = addSixDate(weekBeginDate);
                 const today = moment().format("MM/DD/YYYY");
-                let description = `UKG Consulting Services by: ${row["Resource Name"]}\r${row["Week Begin Date"]} - ${weekEndDate}`;
+                let description = `UKG Consulting Services by: ${row["Resource Name"]} for ${weekBeginDate} - ${weekEndDate}`;
                 
                 
                 const rate = row["Rate"];
