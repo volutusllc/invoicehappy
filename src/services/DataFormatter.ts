@@ -167,12 +167,11 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
                 let outputRow: QBInvoiceOutput = {...{}, ...QBInvoice};
                 if(resourceName !== row["Resource Name"]) {
                     resourceName = row["Resource Name"];
-                    console.log('new invoice #', resourceName);
                     let tempNo = parseInt(invoiceNo, 10);
                     tempNo++;
                     invoiceNo = `${tempNo}`;
                 }
-                console.log('row["Week Begin Date"]', row["Week Begin Date"]);
+
                 const weekBeginDate = moment(row["Week Begin Date"]).format("MM/DD/YYYY");
                 const weekEndDate = addSixDate(weekBeginDate);
                 const today = moment().format("MM/DD/YYYY");
