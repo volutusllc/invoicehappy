@@ -30,6 +30,9 @@ const getRates = async (file: File, onConvert: any): Promise<any> => {
 };
 
 const findRateInfo = (rateData: any, name: string, project: string): RateInfo => {
+    if(!rateData[name] || !rateData[name][project]) {
+        throw new Error(`Person: ${name} does not have a project: ${project} in the rate csv file.`);
+    }
     return rateData[name][project];
 }
 

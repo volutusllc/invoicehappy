@@ -177,7 +177,6 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
                 const today = moment().format("MM/DD/YYYY");
                 let description = `UKG Consulting Services by: ${row["Resource Name"]} for ${weekBeginDate} - ${weekEndDate}`;
                 
-                
                 const rate = row["Rate"];
                 let serviceAmount = 0;
                 if(rate && rate > 0) {
