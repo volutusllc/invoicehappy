@@ -73,9 +73,9 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
     ShippingAddressState: "",
     Memo: "",
     Messagedisplayedoninvoice: "",
-    Email: "needemail@email.com", 
+    Email: "GSOFOPartnerOps@ukg.com", 
     EmailCC: "",
-    EmailBCC: "bccemail@email.com",
+    EmailBCC: "",
     Shipping: "",
     SalesTaxCode: "",
     SalesTaxAmount: "",
@@ -187,7 +187,7 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
                 outputRow.ServiceQuantity = row.Hours;
                 outputRow.ServiceRate = `${rate}`;
                 outputRow.ServiceAmount = `${serviceAmount}`;
-                outputRow.Service = row["Project Name"];
+                outputRow.Service = row["Project Name"].substring(0, 100); //truncate to 100 length
                 outputRow.ServiceDescription = description;         
                 outputRow.DueDate = addThirtyDate(today);
                 outputRow.ServiceTaxable = "False";
