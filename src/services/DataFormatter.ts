@@ -50,7 +50,7 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
          Response: "",
     QbId: "",
     InvoiceNo: invoiceNo,
-    Customer: "Kronos (UKG)",
+    Customer: "UKG",
     InvoiceDate: "",
     DueDate: "",
     ShipVia: "",
