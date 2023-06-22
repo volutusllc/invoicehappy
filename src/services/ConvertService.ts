@@ -5,6 +5,7 @@ const convert = (file: File, onUploadProgress: any): Promise<any> => {
         try {
             Papa.parse(file, {
                 header: true,
+                skipEmptyLines: true,
                 complete: function(results) {
                     onUploadProgress({loaded: 100, total: 100})
                     if (results.errors.length > 0) {

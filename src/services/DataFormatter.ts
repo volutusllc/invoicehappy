@@ -184,6 +184,7 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
                 }
                 outputRow.InvoiceNo = invoiceNo;
                 outputRow.InvoiceDate = today;
+                outputRow.ServiceDate = weekEndDate;
                 outputRow.ServiceQuantity = row.Hours;
                 outputRow.ServiceRate = `${rate}`;
                 outputRow.ServiceAmount = `${serviceAmount}`;
