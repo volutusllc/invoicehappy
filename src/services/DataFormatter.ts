@@ -132,9 +132,9 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
             let projectName = row["Project Name"];
             let beginDate = row["Week Begin Date"];
             let hours = parseFloat(row["Hours"]);
-            let approved = row["Approval Status"];
+            let status = row["Approval Status"];
             let name = convertName(row["Resource Name"]);
-            if(!projectName || !beginDate || !hours || !approved || !name){
+            if(!projectName || !beginDate || !hours || !status || !name){
                 throw new Error("Required data is missing, please check input file");
             } 
             const rowId = tempArray.findIndex(
@@ -143,7 +143,7 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
                                     proj["Week Begin Date"] === beginDate
             );
 
-            if(approved === "Approved") {
+            if(status === "Approved" || status === "Submitted") {
                 const { billingRate/*, approver, approverEmail */ } =  RateService.findRateInfo(rateData, name, projectName);
                 if(rowId === -1) {
                     

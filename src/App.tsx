@@ -8,7 +8,7 @@ function App() {
   
   return (
     <>
-      <div>v1.3
+      <div>v1.35
       </div>
       <h1>Invoice Happy</h1>
       <div className="card">
