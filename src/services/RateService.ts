@@ -41,4 +41,4 @@ const RateService = {
     findRateInfo
   };
   
-  export default RateService;
+export default RateService;

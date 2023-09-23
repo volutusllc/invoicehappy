@@ -1,7 +1,7 @@
 import constants from "../types/Constants";
 import OpenAirInput from "../types/OpenAirInput";
 import moment from 'moment';
-import QBInvoiceOutput from "../types/QBInvoice";
+import QBInvoiceOutput from "../types/QBInvoiceOutput";
 import QBTimeOutput from "../types/QBTime";
 import RateService from "./RateService";
 
@@ -206,7 +206,9 @@ const format = (data: OpenAirInput[], rateData: any, inputFormat: number, output
 };
 
 const DataFormatterService = {
-    format
+    format,
+    convertName,
+    addSixDate
   };
   
-  export default DataFormatterService;
+export default DataFormatterService;

@@ -1,4 +1,5 @@
-import FileUpload from "./components/FileUpload";
+import InvoiceGenerate from "./components/InvoiceGenerate";
+import ReconcileTime from "./components/ReconcileTime";
 
 
 import './App.css'
@@ -12,7 +13,10 @@ function App() {
       </div>
       <h1>Invoice Happy</h1>
       <div className="card">
-      <FileUpload />
+        <InvoiceGenerate />
+      </div>
+      <div className="card">
+        <ReconcileTime />
       </div>
     </>
   )

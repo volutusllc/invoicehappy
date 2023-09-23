@@ -1,0 +1,21 @@
+type Reconciled = {
+    "Resource Name": string;
+    "Week Start Date": string;
+    "Project Name": string;
+    "Project Number": string;
+    "Time Accepted Hours"?: number;
+    "Negative Accepted Hours"?: number;
+    "Summary Accepted Hours"?: number;
+    "Time Submitted Hours"?: number;
+    "Summary Submitted Hours"?: number;
+    "Time Rejected Hours"?: number;
+    "Summary Rejected Hours"?: number;
+    "Time Open Hours"?: number;
+    "Summary Open Hours"?: number;
+    "Invoiced Hours"?: number;
+    "Invoice Number"?: string;
+    "Payment Status"?: string;
+    "Voided?"?: string;
+    "Invoiced Difference"?: number;
+};
+export default Reconciled;

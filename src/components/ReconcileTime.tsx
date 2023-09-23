@@ -1,33 +1,28 @@
 import moment from 'moment';
 import { useState } from "react";
 import IFile from "../types/File";
-import constants from "../types/Constants";
 import ConvertService from "../services/ConvertService";
-import DataFormatterService from "../services/DataFormatter";
-import RateService from "../services/RateService";
+import InvoiceService from '../services/InvoiceService';
+import TimeService from '../services/TimeService';
+import ReconcileService from '../services/ReconcileService';
+import Reconciled from '../types/Reconciled';
 
 
-function FileUpload () {
+function ReconcileTime () {
+    const [currentSummaryFile, setSummaryTimeFile] = useState<File>();
     const [currentTimeFile, setCurrentTimeFile] = useState<File>();
-    const [currentPayFile, setCurrentPayFile] = useState<File>();
-    const [currentInvoiceNo, setCurrentInvoiceNo] = useState<string>("");
+    const [currentInvoiceFile, setInvoiceFile] = useState<File>();
+    
     const [progress, setProgress] = useState<number>(0);
     const [message, setMessage] = useState<string>("");
-    const [inputFormat, setInputFormat] = useState<number>(1);
-    const [outputFormat, setOutputFormat] = useState<number>(2);
     const [fileInfos, setFileInfos] = useState<Array<IFile>>([]);
 
-   
-      const selectInputChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-          setInputFormat(parseInt(event.target.value, 10));
+    const selectSummaryFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const { files } = event.target;
+        const selectedFiles = files as FileList;
+        setSummaryTimeFile(selectedFiles?.[0]);
+        setProgress(0);
       };
-      const selectOutputChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-          setOutputFormat(parseInt(event.target.value, 10));
-      };
-
-      const handleInvoiceNoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setCurrentInvoiceNo(event.target.value);
-      }
     
       const selectTimeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { files } = event.target;
@@ -36,10 +31,10 @@ function FileUpload () {
         setProgress(0);
       };
 
-      const selectPayFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectInvoiceFile = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { files } = event.target;
         const selectedFiles = files as FileList;
-        setCurrentPayFile(selectedFiles?.[0]);
+        setInvoiceFile(selectedFiles?.[0]);
     };
 
     const removeFileExtension = (filename: string): string => {
@@ -50,37 +45,39 @@ function FileUpload () {
       return filename.substring(0, lastDotIndex);
     }
     
-      const convert = () => {
+      const convert = async () => {
         setProgress(0);
-        if (!currentTimeFile || !currentPayFile) {
+        if (!currentSummaryFile || !currentTimeFile || !currentInvoiceFile) {
           setMessage("Both Rate file and Time file need to be selected!");
           return;
         }
         
         let files: IFile[] = [];
-        let rateData = {};
         
+        try {
         //process resource/project rates file
-        RateService.getRates(currentPayFile, () => {
-            console.log('rate file uploaded');
-        })
-        .then((data) => {            
-            rateData = data;
+        let summaryData = await TimeService.getTime(currentSummaryFile, () => {
+            console.log('summary file uploaded');
+        });
+        let timeData = await TimeService.getTime(currentTimeFile, () => {
+            console.log('time file uploaded');
+        });
+        let invoiceData = await InvoiceService.getInvoices(currentInvoiceFile, () => {
+            console.log('invoice file uploaded');
         });
 
         // process time data file
-        ConvertService.convert(currentTimeFile, (event: any) => {
-          setProgress(Math.round((100 * event.loaded) / event.total));
-        })
-          .then((data) => {
+        
+            files.push({url: currentSummaryFile, name: currentTimeFile.name});
             files.push({url: currentTimeFile, name: currentTimeFile.name});
-            const outputData = DataFormatterService.format(data, rateData, inputFormat, outputFormat, currentInvoiceNo);
-            setMessage("Successfully uploaded");
-            return ConvertService.getFile(outputData);
-          })
-          .then((file: string) => {
-            const fileName = `${removeFileExtension(currentTimeFile.name)}-converted-${moment().format("MM/DD/YYYY")}.csv`;
-            const fileBlob = new Blob([file], { type: 'text/csv;charset=utf-8;' });
+            files.push({url: currentInvoiceFile, name: currentInvoiceFile.name});
+            const outputData: Reconciled[] = ReconcileService.reconcile(summaryData, timeData, invoiceData);
+            setMessage("Successfully processed");
+            let outputFile = ConvertService.getFile(outputData);
+          
+          
+            const fileName = `hours-reconciled-${moment().format("MM/DD/YYYY")}.csv`;
+            const fileBlob = new Blob([outputFile], { type: 'text/csv;charset=utf-8;' });
             // if (navigator.msSaveBlob) { // In case of IE 10+
             //     navigator.msSaveBlob(fileBlob, fileName);
             // } else {
@@ -89,8 +86,8 @@ function FileUpload () {
             
             return fileBlob;
             // }
-          })
-          .catch((err) => {
+        
+    } catch (err: any) {
             setProgress(0);
             console.log("convert file error: ", err);
             if (err.response && err.response.data && err.response.data.message) {
@@ -99,47 +96,37 @@ function FileUpload () {
               setMessage("Could not convert the File!");
             }
     
-            setCurrentTimeFile(undefined);
-          });
+            setSummaryTimeFile(undefined);
+          }
       };
     
 return (
     <div>
+        <div className="row">
+            <div className="col-8"><h2>Reconcile Time</h2></div>
+        </div>
       <div className="row">
-      <div className="col-8">
-          <label className="btn btn-default p-0">
-            Next Invoice Number: 
-          </label>
-          <input type='text' value={currentInvoiceNo} onChange={handleInvoiceNoChange}/>
-        </div>
         <div className="col-8">
           <label className="btn btn-default p-0">
-            Time Sheet File: <input type="file" onChange={selectTimeFile} />
+            OA Summary File: <input type="file" onChange={selectSummaryFile} />
           </label>
         </div>
         <div className="col-8">
           <label className="btn btn-default p-0">
-            Pay Rates File: <input type="file" onChange={selectPayFile} />
+            OA Time Sheet File: <input type="file" onChange={selectTimeFile} />
+          </label>
+        </div>
+        <div className="col-8">
+          <label className="btn btn-default p-0">
+            QB Invoice File: <input type="file" onChange={selectInvoiceFile} />
           </label>
         </div>
 
         <div className="col-4">
-          <div >
-            <label>Select Input Format</label>
-            <select onChange={selectInputChange} defaultValue={1} className="form-select">
-                <option  value={constants.OPENAIRINPUT}>Open Air Input</option>
-            </select>
-            </div>
-            <div>
-            <label>Select Output Format</label>
-            <select onChange={selectOutputChange} defaultValue={2} className="form-select">
-                <option  value={constants.QBINVOICEOUT}>QuickBooks Invoice</option>
-                <option value={constants.QBTIMEOUT}>QuickBooks Time</option>
-            </select>
-            </div>    
+          
           <button
             className="btn btn-success btn-sm"
-            disabled={!currentTimeFile}
+            disabled={!currentSummaryFile}
             onClick={convert}
           >
             Convert
@@ -147,7 +134,7 @@ return (
         </div>
       </div>
 
-      {currentTimeFile && (
+      {currentSummaryFile && (
         <div className="progress my-3">
           <div
             className="progress-bar progress-bar-info"
@@ -198,4 +185,4 @@ return (
 //         document.body.removeChild(link);
 //     }
 // }
-export default FileUpload;
+export default ReconcileTime;
