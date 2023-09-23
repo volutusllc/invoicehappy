@@ -129,8 +129,8 @@ const summaryRow = (data: Reconciled[]): Reconciled[] => {
         TShours += row["Time Submitted Hours"];
         
         NegAhours += row["Negative Accepted Hours"];
-        Inhours += parseFloat(row["Invoiced Hours"]);
-        IDiffHours += parseFloat(row["Invoiced Difference"]);
+        Inhours += row["Invoiced Hours"];
+        IDiffHours += row["Invoiced Difference"];
 
         if(row["Voided?"]) {
             voided++;
